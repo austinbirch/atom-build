@@ -1,0 +1,17 @@
+{
+  "cmd": "echo",
+  "sh": true,
+  "args": [ "Default build success." ],
+  "builds": {
+    "Name 1": {
+      "cmd": "echo",
+      "sh": true,
+      "args": [ "Build 'Name 1' success." ]
+    },
+    "Name 2": {
+      "cmd": "echo",
+      "sh": true,
+      "args": [ "Build 'Name 2' success." ]
+    }
+  }
+}

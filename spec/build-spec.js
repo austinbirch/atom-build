@@ -24,6 +24,7 @@ describe('Build', function() {
   var syntaxErrorAtomBuildFile = __dirname + '/fixture/.atom-build.syntax-error.json';
   var errorMatchAtomBuildFile = __dirname + '/fixture/.atom-build.error-match.json';
   var errorMatchNLCAtomBuildFile = __dirname + '/fixture/.atom-build.error-match-no-line-col.json';
+  var namedBuildsAtomBuildFile = __dirname + '/fixture/.atom-build.named-builds.json';
 
   var directory = null;
   var workspaceElement = null;
@@ -434,6 +435,79 @@ describe('Build', function() {
         expect(workspaceElement.querySelector('.build')).toExist();
         expect(workspaceElement.querySelector('.build .output').textContent).toMatch(/^Executing with sh: apm/);
       });
+    });
+  });
+
+  describe('when named build commands are defined', function() {
+    describe('when the build config is reloaded', function() {
+      it('should re-read the named builds', function() {
+        var build = atom.packages.getLoadedPackage('build').mainModule;
+        var buildConfig = require(fs.realpathSync(namedBuildsAtomBuildFile));
+        expect(build.namedBuilds).toEqual({});
+
+        fs.writeFileSync(directory + '.atom-build.json', JSON.stringify(buildConfig));
+        atom.commands.dispatch(workspaceElement, 'build:refresh-build-config');
+
+        waitsFor(function() {
+          return !_.isEmpty(build.namedBuilds);
+        });
+
+        runs(function() {
+          expect(_.keys(build.namedBuilds)).toEqual(_.keys(buildConfig.builds));
+        });
+      });
+    });
+
+    it('should run top-level default build if no name is specified', function() {
+
+      expect(workspaceElement.querySelector('.build')).not.toExist();
+
+      fs.writeFileSync(directory + '.atom-build.json', fs.readFileSync(namedBuildsAtomBuildFile));
+      atom.commands.dispatch(workspaceElement, 'build:trigger');
+
+      waitsFor(function() {
+        return workspaceElement.querySelector('.build .title').classList.contains('success');
+      });
+
+      runs(function() {
+        expect(workspaceElement.querySelector('.build')).toExist();
+        expect(workspaceElement.querySelector('.build .output').textContent).toMatch(/Default build success\./);
+      });
+    });
+
+    it('should run named build if name is specified', function() {
+
+      expect(workspaceElement.querySelector('.build')).not.toExist();
+
+      fs.writeFileSync(directory + '.atom-build.json', fs.readFileSync(namedBuildsAtomBuildFile));
+
+      atom.commands.dispatch(workspaceElement, 'build:refresh-build-config');
+      atom.commands.dispatch(workspaceElement, 'build:Name 1');
+
+      waitsFor(function() {
+        return workspaceElement.querySelector('.build .title').classList.contains('success');
+      });
+
+      runs(function() {
+        expect(workspaceElement.querySelector('.build')).toExist();
+        expect(workspaceElement.querySelector('.build .output').textContent).toMatch(/Build 'Name 1' success\./);
+      });
+    });
+  });
+
+  it('should show sh message if sh is true', function() {
+    expect(workspaceElement.querySelector('.build')).not.toExist();
+
+    fs.writeFileSync(directory + '.atom-build.json', fs.readFileSync(shTrueAtomBuildFile));
+    atom.commands.dispatch(workspaceElement, 'build:trigger');
+
+    waitsFor(function() {
+      return workspaceElement.querySelector('.build .title').classList.contains('success');
+    });
+
+    runs(function() {
+      expect(workspaceElement.querySelector('.build')).toExist();
+      expect(workspaceElement.querySelector('.build .output').textContent).toMatch(/Executing with sh:/);
     });
   });
 
