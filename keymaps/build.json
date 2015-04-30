@@ -4,14 +4,14 @@
     "cmd-alt-v": "build:toggle-panel",
     "cmd-alt-g": "build:error-match",
     "cmd-alt-h": "build:error-match-first",
-		"cmd-alt-n": "build:show-named-builds"
+    "cmd-alt-n": "build:show-named-builds"
   },
   ".platform-linux, .platform-win32": {
     "ctrl-alt-b": "build:trigger",
     "ctrl-alt-v": "build:toggle-panel",
     "ctrl-alt-g": "build:error-match",
     "ctrl-alt-h": "build:error-match-first",
-		"ctrl-alt-n": "build:show-named-builds"
+    "ctrl-alt-n": "build:show-named-builds"
   },
   ".build": {
     "escape": "build:stop"
